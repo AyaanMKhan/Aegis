@@ -1,9 +1,36 @@
-export const metadata = { title: "Aegis", description: "Deploy ONNX models as APIs" };
+import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono-face",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: "Aegis — Deploy ONNX models as APIs",
+    template: "%s · Aegis",
+  },
+  description:
+    "Upload an ONNX model, get a deployed HTTPS API behind an API key. Backed by ECS Fargate and Terraform.",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
+      <body className="min-h-screen antialiased">{children}</body>
     </html>
   );
 }

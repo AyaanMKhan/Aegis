@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+/* =========================================================================
+   Aegis design tokens
+   Near-black surfaces, hairline borders, light-on-dark emphasis.
+   Primary actions are LIGHT (white pill on black). Lime is the signal accent
+   reserved for live state, the logo mark, and the primary data series.
+   ========================================================================= */
+
+@theme {
+  /* --- surfaces, darkest to lightest --- */
+  --color-base: #08090a;
+  --color-surface: #0d0f10;
+  --color-surface-2: #131618;
+  --color-surface-3: #1a1e20;
+
+  /* --- borders --- */
+  --color-line: #1e2325;
+  --color-line-strong: #2c3235;
+  /* The hover step above line-strong, on any interactive bordered control. */
+  --color-line-hover: #3b4245;
+
+  /* Code surfaces sit a step BELOW the page, so a block reads as inset. */
+  --color-code: #0a0c0d;
+
+  /* --- foreground --- */
+  --color-fg: #f4f6f7;
+  --color-fg-muted: #99a1a7;
+  --color-fg-subtle: #666e73;
+
+  /* --- signal accent --- */
+  --color-accent: #bef264;
+  --color-accent-dim: #9ccb3f;
+  --color-accent-faint: #232d13;
+
+  /* --- status --- */
+  --color-live: #4ade80;
+  --color-pending: #fbbf24;
+  --color-failed: #f87171;
+  --color-idle: #64748b;
+  --color-info: #60a5fa;
+
+  /* --- categorical series for charts ---
+     Fixed order, never cycled. Validated for the dark surface above:
+     lightness band L 0.48-0.67, chroma floor, adjacent CVD dE 8.4, normal-vision
+     dE 19.3, all >= 3:1 contrast. Slots 1-3 also clear the all-pairs gate, so
+     scatter/bubble forms cap at three series and fold the rest into "Other".
+     Re-run scripts/validate_palette.js before changing any value here.
+     Note: --color-accent is a brand/status colour, NOT a categorical slot. It is
+     legal as the lone series on a single-series chart, never mixed into this set. */
+  --color-series-1: #3987e5;
+  --color-series-2: #d95926;
+  --color-series-3: #199e70;
+  --color-series-4: #c98500;
+  --color-series-5: #d55181;
+
+  /* --- type --- */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, "SF Mono", "JetBrains Mono",
+    Menlo, monospace;
+
+  /* --- radii --- */
+  --radius-card: 0.75rem;
+  --radius-control: 0.5rem;
+
+  /* --- motion --- */
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    background-color: var(--color-base);
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-base);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Tabular figures everywhere numbers are compared down a column. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-base);
+  }
+
+  /* Focus: a light ring, never a browser default. */
+  :focus-visible {
+    outline: 2px solid var(--color-fg);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 999px;
+    border: 3px solid var(--color-base);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-line-hover);
+  }
+}
+
+@layer utilities {
+  /* A hairline top highlight — the trick that makes dark cards read as raised. */
+  .raised {
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.04),
+      0 1px 2px 0 rgb(0 0 0 / 0.4);
+  }
+
+  /* Subtle dotted grid for hero / empty-state backdrops. */
+  .grid-bg {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgb(255 255 255 / 0.05) 1px,
+      transparent 0
+    );
+    background-size: 32px 32px;
+  }
+
+  /* Masks a decorative layer out toward the edges. */
+  .fade-edges {
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Pulsing dot used by "live" status indicators. */
+@keyframes aegis-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-pulse-dot {
+  animation: aegis-pulse 2s var(--ease-out-soft) infinite;
+}
+
+@keyframes aegis-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: aegis-rise 0.5s var(--ease-out-soft) both;
+}
