@@ -13,6 +13,31 @@ managed service, and we prefer boring, inspectable infrastructure over clever
 abstractions. Where a shortcut costs no learning (see the runner image below), we
 take the shortcut.
 
+## Working rule: one phase at a time
+
+The repo holds only the phase being worked on. Nothing is scaffolded ahead of time —
+no empty modules, no placeholder files for work that is phases away. A folder that is
+empty is a promise, not an omission; the files land when the phase that needs them
+starts, and the phase list below is the only record of what is coming.
+
+This is deliberate. An empty `services/` is a shorter thing to hold in your head than
+seven one-line files named after AWS services you have not learned yet.
+
+## Repo shape today
+
+```
+frontend/   built out — every screen, wired to lib/mock-data.ts
+backend/    Phase 0 skeleton only
+infra/      empty — filled in Phase 2
+runner/     empty — filled in Phase 3
+docs/       empty — notes as they are earned
+scripts/    empty — teardown helper in Phase 2
+```
+
+The frontend is finished ahead of the backend on purpose: it fixes the shape of every
+API response before a line of FastAPI is written, and `lib/mock-data.ts` is the
+contract the backend has to satisfy. Read it before designing an endpoint.
+
 ## Decisions
 
 | Area | Decision | Why |
@@ -51,7 +76,9 @@ at roughly $16/mo no matter how many models are deployed.
 
 ## Data model
 
-Two changes to the original schema, both reflected in `backend/app/models/`:
+The design the ORM models are written against, phase by phase. `User`, `Account` and
+`Project` exist now; the rest are written when their phase needs them. Two changes to
+the original schema:
 
 - **`Model` splits into `Model` + `ModelVersion`.** `Model` is the logical container
   (name, description); `ModelVersion` holds each uploaded artifact and everything
@@ -81,10 +108,25 @@ Fields worth calling out beyond the original schema:
 
 ## Phases
 
-### Phase 0 — Local foundation
-Postgres via `docker-compose up`, FastAPI running, Next.js running, SQLAlchemy models
-and the Alembic baseline migration, Google + GitHub OAuth through Authlib with a
-signed session cookie. Ends with: sign in, create a project, see it persist.
+### Phase 0 — Local foundation *(current)*
+In order, one at a time — each step runs before the next is started:
+
+1. `docker compose up -d`, confirm Postgres accepts a connection.
+2. `backend/app/main.py` serves `/healthz`; `app/core/config.py` reads settings from
+   the environment.
+3. `app/db/session.py` + `base.py`, then the three models Phase 0 needs —
+   `User`, `Account`, `Project`.
+4. Alembic initialised, baseline migration generated and applied.
+5. Google + GitHub OAuth through Authlib, signed session cookie, `app/api/routes/auth.py`.
+6. `app/api/routes/projects.py` — list and create, matching the shape the frontend
+   already renders from `lib/mock-data.ts`.
+7. Point the frontend's `lib/api.ts` at the real backend for projects only.
+
+Ends with: sign in with both providers, create a project, see it persist.
+
+Everything the later phases need — the `Model`/`ModelVersion`/`Deployment` models,
+`services/`, `workers/`, the remaining routes — is written when its phase starts.
+The data model below is the design for those, not a to-do list for now.
 
 ### Phase 1 — Model upload and inspection
 Presigned S3 upload straight from the browser. On completion the backend parses the
@@ -93,7 +135,8 @@ tensor names, shapes and dtypes into `inputSchema`/`outputSchema`, records opset
 checksum. Ends with: upload a `.onnx`, see its real signature in the UI.
 
 ### Phase 2 — Baseline infrastructure *(the Terraform-heavy phase)*
-Written and applied by hand, reviewing every plan before it runs:
+`infra/` is empty until this phase. It then gets `baseline/` — written and applied by
+hand, one file at a time, reviewing every plan before it runs:
 VPC with public and private subnets → security groups → shared ALB with an HTTPS
 listener → ECS cluster → ECR → S3 buckets → RDS Postgres → Route 53 hosted zone and a
 DNS-validated ACM certificate → IAM roles. Remote state in S3 with DynamoDB locking
@@ -101,7 +144,9 @@ from the very first apply. Ends with: a hand-deployed hello-world service reacha
 over HTTPS at the real domain.
 
 ### Phase 3 — Programmatic deployment
-The runner image is built and pushed to ECR. The API renders tfvars, runs
+`runner/` is filled in here: a FastAPI app on `fastapi`, `uvicorn[standard]`,
+`onnxruntime`, `numpy` and `boto3` that reads `MODEL_S3_URI` at boot, plus the
+Dockerfile for it. The image is built and pushed to ECR. The API renders tfvars, runs
 `terraform init/apply` against `infra/modules/deployment` with state key
 `deployments/<id>/terraform.tfstate`, and streams progress to the deployment row.
 Delete performs a real `terraform destroy`. Ends with: **the vertical slice** — sign
