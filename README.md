@@ -22,6 +22,15 @@ starts. Phase 0 (local foundation) is current.
 ## Running locally
 
 ```sh
-docker compose up -d          # Postgres on :5432
-cd frontend && npm run dev    # dashboard on :3000
+docker compose up -d --build
 ```
+
+| Service    | URL                            | Notes                                  |
+|------------|--------------------------------|----------------------------------------|
+| `frontend` | http://localhost:3000          | `next dev`, reloads on file change     |
+| `backend`  | http://localhost:8000/healthz  | `uvicorn --reload`                     |
+| `db`       | `postgres://aegis:aegis@localhost:5432/aegis` | data in the `pgdata` volume |
+
+Both app containers bind-mount their source, so editing on the host reloads in the
+container. `node_modules` and `.next` stay inside the frontend image, so a host
+`npm run dev` and the container do not fight over them.

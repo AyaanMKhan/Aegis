@@ -12,5 +12,34 @@ services:
       interval: 5s
       retries: 10
 
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://aegis:aegis@db:5432/aegis
+      FRONTEND_ORIGIN: http://localhost:3000
+    ports: ["8000:8000"]
+    volumes: ["./backend:/app"]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')\""]
+      interval: 5s
+      retries: 10
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports: ["3000:3000"]
+    volumes:
+      - ./frontend:/app
+      # keep the image's node_modules/.next, not the host's
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      backend:
+        condition: service_started
+
 volumes:
   pgdata:
