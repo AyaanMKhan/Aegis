@@ -29,9 +29,16 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
 
+    github_client_id: str = ""
+    github_client_secret: str = ""
+
     @property
     def google_configured(self) -> bool:
         return bool(self.google_client_id and self.google_client_secret)
+
+    @property
+    def github_configured(self) -> bool:
+        return bool(self.github_client_id and self.github_client_secret)
 
 
 settings = Settings()

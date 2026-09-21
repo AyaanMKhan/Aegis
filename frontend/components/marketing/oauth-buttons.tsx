@@ -1,4 +1,4 @@
-import { ButtonLink, buttonClasses } from "@/components/ui/button";
+import { buttonClasses } from "@/components/ui/button";
 
 /**
  * Brand glyphs, hand-written: lucide ships no trademarked marks.
@@ -45,15 +45,13 @@ export function GoogleGlyph() {
 export function OAuthButtons({ verb = "Continue" }: { verb?: string }) {
   return (
     <div className="grid gap-2.5">
-      <ButtonLink
-        href="/callback?provider=github"
-        variant="secondary"
-        size="lg"
-        className="w-full"
+      <a
+        href={`${API_URL}/auth/github/login`}
+        className={`${buttonClasses("secondary", "lg")} w-full`}
       >
         <GitHubGlyph />
         {verb} with GitHub
-      </ButtonLink>
+      </a>
       <a
         href={`${API_URL}/auth/google/login`}
         className={`${buttonClasses("secondary", "lg")} w-full`}
