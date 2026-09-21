@@ -1,10 +1,15 @@
-import { ButtonLink } from "@/components/ui/button";
+import { ButtonLink, buttonClasses } from "@/components/ui/button";
 
 /**
  * Brand glyphs, hand-written: lucide ships no trademarked marks.
- * Both buttons point at the OAuth callback route, which is where the FastAPI
- * control plane returns the browser after Authlib completes the handshake.
+ *
+ * Google is wired to the control plane: a plain <a>, not next/link, because
+ * starting an OAuth handshake has to be a real cross-origin navigation rather
+ * than a client-side route change. GitHub still points at the mock callback
+ * until its provider is registered backend-side.
  */
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export function GitHubGlyph() {
   return (
@@ -49,15 +54,13 @@ export function OAuthButtons({ verb = "Continue" }: { verb?: string }) {
         <GitHubGlyph />
         {verb} with GitHub
       </ButtonLink>
-      <ButtonLink
-        href="/callback?provider=google"
-        variant="secondary"
-        size="lg"
-        className="w-full"
+      <a
+        href={`${API_URL}/auth/google/login`}
+        className={`${buttonClasses("secondary", "lg")} w-full`}
       >
         <GoogleGlyph />
         {verb} with Google
-      </ButtonLink>
+      </a>
     </div>
   );
 }
