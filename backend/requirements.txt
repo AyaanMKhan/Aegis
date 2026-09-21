@@ -1,2 +1,13 @@
 fastapi
 uvicorn[standard]
+
+# database
+sqlalchemy[asyncio]
+psycopg[binary]
+alembic
+
+# settings and auth
+pydantic-settings
+authlib
+httpx
+itsdangerous
