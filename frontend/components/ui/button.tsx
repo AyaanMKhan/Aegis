@@ -13,7 +13,13 @@ const base =
 
 const variants: Record<Variant, string> = {
   // The light-on-dark emphasis: a near-white surface with black type.
-  primary: "bg-fg text-base hover:bg-white active:bg-fg-muted",
+  //
+  // The text colour is written the long way on purpose. `text-base` would read
+  // better, but tailwind-merge classifies it as a font-size — it has no idea
+  // --color-base exists — so `cn()` saw it and the size class `text-[13px]` as
+  // the same utility and dropped the colour, leaving white type on a white
+  // button. The `color:` label is what tells tailwind-merge this is a colour.
+  primary: "bg-fg text-[color:var(--color-base)] hover:bg-white active:bg-fg-muted",
   secondary:
     "bg-surface-2 text-fg border border-line-strong hover:bg-surface-3 hover:border-line-hover",
   outline: "border border-line-strong text-fg hover:bg-surface-2",
