@@ -7,4 +7,5 @@ dependencies = [
     "sqlalchemy",
     "pydantic",
     "passlib[bcrypt]",
+    "database"
 ]
