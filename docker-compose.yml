@@ -1,39 +1,41 @@
 services:
-  db:
-    image: postgres:18-alpine
-    container_name: postgres-dev
-    environment:
-      POSTGRES_USER: aegis
-      POSTGRES_PASSWORD: aegis
-      POSTGRES_DB: aegis
-    ports:
-      - "5432:5432"
-    volumes: ["pgdata:/var/lib/postgresql/data"]
-  
   backend:
     build:
       context: .
-      target: builder
+      target: backend
     container_name: fastapi-backend
-    environment:
-      PORT: 8000
     ports:
-      - '8000:8000'
+      - "8000:8000"
+    # Uncomment once the db service below is enabled.
+    # environment:
+    #   DATABASE_URL: postgresql://aegis:aegis@db:5432/aegis
+    # depends_on:
+    #   - db
     restart: "no"
 
-  
-  frontend:
-    container_name: frontend-react
-    build: 
-      context: ./frontend
-      target: builder
-    networks:
-      - client-side
-    ports:
-      - 3000:3000
-    restart: "no"
+  # db:
+  #   image: postgres:18-alpine
+  #   container_name: postgres-dev
+  #   environment:
+  #     POSTGRES_USER: aegis
+  #     POSTGRES_PASSWORD: aegis
+  #     POSTGRES_DB: aegis
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   restart: "no"
 
+  # frontend:
+  #   container_name: frontend-react
+  #   build:
+  #     context: ./frontend
+  #   ports:
+  #     - "5173:5173"
+  #   depends_on:
+  #     - backend
+  #   restart: "no"
 
-
-volumes:
-  pgdata
+# Uncomment together with the db service.
+# volumes:
+#   pgdata:
