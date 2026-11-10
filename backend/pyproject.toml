@@ -5,6 +5,7 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "sqlalchemy",
+    "psycopg[binary]",
     "pydantic",
     "passlib[bcrypt]"
 ]

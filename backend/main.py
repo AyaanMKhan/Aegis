@@ -1,8 +1,10 @@
 from fastapi import FastAPI, APIRouter
 from routes import user, project, models
 from fastapi.middleware.cors import CORSMiddleware
+from database import Base, engine
+from models import user as users_model, project as project_model, models as models_models
 
-
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Aegis")
 origins = ["http://localhost:5173"]

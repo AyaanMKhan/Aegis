@@ -6,25 +6,31 @@ services:
     container_name: fastapi-backend
     ports:
       - "8000:8000"
-    # Uncomment once the db service below is enabled.
-    # environment:
-    #   DATABASE_URL: postgresql://aegis:aegis@db:5432/aegis
-    # depends_on:
-    #   - db
+    environment:
+      DATABASE_URL: postgresql+psycopg://aegis:aegis@db:5432/aegis
+    depends_on:
+      db:
+        condition: service_healthy
     restart: "no"
 
-  # db:
-  #   image: postgres:18-alpine
-  #   container_name: postgres-dev
-  #   environment:
-  #     POSTGRES_USER: aegis
-  #     POSTGRES_PASSWORD: aegis
-  #     POSTGRES_DB: aegis
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   restart: "no"
+  db:
+    image: postgres:18-alpine
+    container_name: postgres-dev
+    environment:
+      POSTGRES_USER: aegis
+      POSTGRES_PASSWORD: aegis
+      POSTGRES_DB: aegis
+      DATABASE_URL: postgresql+psycopg://aegis:aegis@db:5432/aegis
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aegis -d aegis"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    restart: "no"
 
   # frontend:
   #   container_name: frontend-react
@@ -36,6 +42,5 @@ services:
   #     - backend
   #   restart: "no"
 
-# Uncomment together with the db service.
-# volumes:
-#   pgdata:
+volumes:
+  pgdata:
