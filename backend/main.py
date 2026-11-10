@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter
-from routes import user, project
+from routes import user, project, models
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -24,3 +24,4 @@ async def hello():
 
 app.include_router(user.user_router)
 app.include_router(project.project_router)
+app.include_router(models.models_router)
